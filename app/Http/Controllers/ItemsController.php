@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Item;
+use Validator;
 
 use Illuminate\Http\Request;
 
@@ -13,7 +15,8 @@ class ItemsController extends Controller
      */
     public function index()
     {
-        //
+        $items = Item::all();
+        return response()->json($items);
     }
 
     /**
@@ -34,7 +37,24 @@ class ItemsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'text' => 'required'
+        ]);
+
+        if ($validator->fails())
+        {
+            $response = array('response' => $validator->messages(), 'success' => false);
+            return $response;
+        }
+        else
+        {
+            //Create item
+            $item = new Item;
+            $item->text = $request->input('text');
+            $item->body = $request->input('body');
+            $item->save();
+            return response()->json($item);
+        }
     }
 
     /**
@@ -45,7 +65,8 @@ class ItemsController extends Controller
      */
     public function show($id)
     {
-        //
+        $item = Item::findOrFail($id);
+        return response()->json($item);
     }
 
     /**
@@ -68,7 +89,24 @@ class ItemsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'text' => 'required'
+        ]);
+
+        if ($validator->fails())
+        {
+            $response = array('response' => $validator->messages(), 'success' => false);
+            return $response;
+        }
+        else
+        {
+            //find item
+            $item = Item::findOrFail($id);
+            $item->text = $request->input('text');
+            $item->body = $request->input('body');
+            $item->save();
+            return response()->json($item);
+        }
     }
 
     /**
@@ -79,6 +117,9 @@ class ItemsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $item = Item::findOrFail($id);
+        $item->delete();
+        $response = array('response' => 'Item deleted', 'success' => true);
+        return $response;
     }
 }
